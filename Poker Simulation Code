@@ -19,8 +19,14 @@ for cardNumber in range(1, 6):
             opponentHand.append(potentialCard)
 
 
-# Ranks a hand in terms of its strength in poker
-def handRank(hand):
-    # Checks hand for a flush
-    if hand[0] % 4 == hand[1] % 4 == hand[2] % 4 == hand[3] % 4 == hand[4] % 4:
-        return 5
+# Converts hand to bare values to check for sets and straights
+def handSort(hand):
+    cardValues = []
+    for i in range(0, 5):
+        if hand[i] % 4 == 0:
+            cardValues.append(int(hand[i] / 4))
+        else:
+            cardValues.append(int(((hand[i] - (hand[i] % 4)) / 4) + 1))
+    cardValues.sort()
+    return cardValues
+    
