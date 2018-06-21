@@ -1,1 +1,17 @@
-adsfasdfadfadsf
+import random
+
+# Inputs the hand to be simulated
+print('Player Hand:')
+print()
+playerHand = []
+for cardNumber in range(1, 6):
+    cardNumberString = str(cardNumber)
+    playerHand.append(int(input('Card ' + cardNumberString + ': ')))
+
+# Generates a random hand for the opposing player
+opponentHand = []
+for cardNumber in range(1, 6):
+    while len(opponentHand) < cardNumber:
+        potentialCard = random.randint(1, 53)
+        if potentialCard not in playerHand and potentialCard not in opponentHand:
+            opponentHand.append(potentialCard)
