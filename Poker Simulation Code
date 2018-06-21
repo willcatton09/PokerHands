@@ -1,1 +1,26 @@
-adsfasdfadfadsf
+import random
+
+
+# Inputs the hand to be simulated
+print('Player Hand:')
+print()
+playerHand = []
+for cardNumber in range(1, 6):
+    cardNumberString = str(cardNumber)
+    playerHand.append(int(input('Card ' + cardNumberString + ': ')))
+
+
+# Generates a random hand for the opposing player
+opponentHand = []
+for cardNumber in range(1, 6):
+    while len(opponentHand) < cardNumber:
+        potentialCard = random.randint(1, 53)
+        if potentialCard not in playerHand and potentialCard not in opponentHand:
+            opponentHand.append(potentialCard)
+
+
+# Ranks a hand in terms of its strength in poker
+def handRank(hand):
+    # Checks hand for a flush
+    if hand[0] % 4 == hand[1] % 4 == hand[2] % 4 == hand[3] % 4 == hand[4] % 4:
+        return 5
