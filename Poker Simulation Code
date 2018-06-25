@@ -1,24 +1,3 @@
-import random
-
-
-# Inputs the hand to be simulated
-print('Player Hand:')
-print()
-playerHand = []
-for cardNumber in range(1, 6):
-    cardNumberString = str(cardNumber)
-    playerHand.append(int(input('Card ' + cardNumberString + ': ')))
-
-
-# Generates a random hand for the opposing player
-opponentHand = []
-for cardNumber in range(1, 6):
-    while len(opponentHand) < cardNumber:
-        potentialCard = random.randint(1, 53)
-        if potentialCard not in playerHand and potentialCard not in opponentHand:
-            opponentHand.append(potentialCard)
-
-
 # Converts hand to bare values to check for sets and straights
 def handSort(hand):
     cardValues = []
@@ -28,5 +7,141 @@ def handSort(hand):
         else:
             cardValues.append(int(((hand[i] - (hand[i] % 4)) / 4) + 1))
     cardValues.sort()
+    while 1 in cardValues:
+        cardValues.remove(1)
+        cardValues.append(14)
     return cardValues
-    
+
+
+# Ranks a hand in terms of its strength in poker
+def handRank(hand):
+    cardValues = handSort(hand)
+    # Checks hand for a full house
+    if cardValues[0] == cardValues[1] and cardValues[2] == cardValues[4]:
+        return 6
+    if cardValues[0] == cardValues[2] and cardValues[3] == cardValues[4]:
+        return 6
+    # Checks hand for any pair
+    for i in range(0, 4):
+        if cardValues[i] == cardValues[i + 1]:
+            if i <= 1:
+                if cardValues[i] == cardValues[i + 3]:
+                    return 7
+            if i <= 2:
+                if cardValues[i] == cardValues[i + 2]:
+                    return 3
+            if i <= 1 and cardValues[i + 2] == cardValues[i + 3]:
+                return 2
+            if i == 0 and cardValues[i + 3] == cardValues[i + 4]:
+                return 2
+            return 1
+    # Checks hand for any flush
+    flush = False
+    if hand[0] % 4 == hand[1] % 4 == hand[2] % 4 == hand[3] % 4 == hand[4] % 4:
+        flush = True
+    # Checks hand for any straight
+    straight = True
+    for i in range(0, 4):
+        if cardValues[i] != cardValues[i+1] - 1:
+            straight = False
+            break
+    if 2 in cardValues and 3 in cardValues and 4 in cardValues and 5 in cardValues and 14 in cardValues:
+        straight = True
+    if straight and flush:
+        return 8
+    if straight:
+        return 4
+    if flush:
+        return 5
+    return 0
+
+
+# Compares two hands to each other, returns which hand, 1 or 2, wins or if it is a push, 0
+def compareHands(handOne, handTwo):
+    # Compares differently ranked hands
+    if handRank(handOne) > handRank(handTwo):
+        return 1
+    if handRank(handTwo) > handRank(handOne):
+        return 2
+    cardValuesOne = handSort(handOne)
+    cardValuesTwo = handSort(handTwo)
+    # Compares high card and flush hands
+    if handRank(handOne) == 0 or handRank(handOne) == 5:
+        for i in range(0, 5):
+            if cardValuesOne[4 - i] > cardValuesTwo[4 - i]:
+                return 1
+            if cardValuesTwo[4 - i] > cardValuesOne[4 - i]:
+                return 2
+        return 0
+    # Compares 3 of a kind, full house, and 4 of a kind hands
+    if handRank(handOne) == 3 or handRank(handOne) == 6 or handRank(handOne) == 7:
+        if cardValuesOne[3] > cardValuesTwo[3]:
+            return 1
+        return 2
+    # Compares straight and straight flush hands
+    if handRank(handOne) == 4 or handRank(handOne) == 8:
+        if 2 in cardValuesOne and 14 in cardValuesOne:
+            cardValuesOne.remove(14)
+            cardValuesOne = [1] + cardValuesOne
+        if 2 in cardValuesTwo and 14 in cardValuesTwo:
+            cardValuesTwo.remove(14)
+            cardValuesTwo = [1] + cardValuesTwo
+        if cardValuesOne[4] > cardValuesTwo[4]:
+            return 1
+        if cardValuesTwo[4] > cardValuesOne[4]:
+            return 2
+        return 0
+    # Compares 1 pair hands
+    if handRank(handOne) == 1:
+        pairOne = 0
+        pairTwo = 0
+        for i in range(0, 4):
+            if cardValuesOne[i] == cardValuesOne[i + 1]:
+                pairOne = cardValuesOne[i]
+                break
+        for i in range(0, 4):
+            if cardValuesTwo[i] == cardValuesTwo[i + 1]:
+                pairTwo = cardValuesTwo[i]
+                break
+        if pairOne > pairTwo:
+            return 1
+        if pairTwo > pairOne:
+            return 2
+        for i in range(0, 5):
+            if cardValuesOne[4 - i] > cardValuesTwo[4 - i]:
+                return 1
+            if cardValuesTwo[4 - i] > cardValuesOne[4 - i]:
+                return 2
+        return 0
+    # Compares 2 pair hands
+    i = 0
+    j = 0
+    pairOne = 0
+    pairTwo = 0
+    for i in range(0, 4):
+        if cardValuesOne[4 - i] == cardValuesOne[3 - i]:
+            pairOne = cardValuesOne[i]
+            break
+    for j in range(0, 4):
+        if cardValuesTwo[4 - j] == cardValuesTwo[3 - j]:
+            pairTwo = cardValuesTwo[j]
+            break
+    if pairOne == pairTwo:
+        for k in range(i + 1, 4):
+            if cardValuesOne[4 - k] == cardValuesOne[3 - k]:
+                pairOne = cardValuesOne[k]
+                break
+        for l in range(j + 1, 4):
+            if cardValuesTwo[4 - l] == cardValuesTwo[3 - l]:
+                pairTwo = cardValuesTwo[l]
+                break
+    if pairOne > pairTwo:
+        return 1
+    if pairTwo > pairOne:
+        return 2
+    for i in range(0, 5):
+        if cardValuesOne[4 - i] > cardValuesTwo[4 - i]:
+            return 1
+        if cardValuesTwo[4 - i] > cardValuesOne[4 - i]:
+            return 2
+    return 0
